@@ -1,8 +1,0 @@
-{
-  "profiles": {
-    "MeshTool": {
-      "commandName": "Project",
-      "commandLineArgs": "le"
-    }
-  }
-}

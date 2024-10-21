@@ -400,3 +400,4 @@ FodyWeavers.xsd
 # Customize
 desktop.ini
 __*
+/MeshTool/Properties/launchSettings.json
