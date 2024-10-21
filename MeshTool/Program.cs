@@ -1,4 +1,6 @@
 // ReSharper disable UseObjectOrCollectionInitializer
+
+using System.Buffers.Binary;
 using System.CommandLine;
 using System.CommandLine.NamingConventionBinder;
 using MeshTool;
@@ -8,13 +10,25 @@ rootCommand.AddGlobalOption(new Option<string>(["--address", "-a"], "Address"));
 
 // LED
 var leCommand = new Command("le", "LED");
-// TODO color, time, on, off, pattern
-leCommand.Handler = CommandHandler.Create(async (string address) =>
+leCommand.AddOption(new Option<string>(["--color", "-c"], () => "FFFFFF"));
+leCommand.AddOption(new Option<int>(["--time", "-t"], () => -1));
+leCommand.AddOption(new Option<int>(["--on", "-n"], () => -1));
+leCommand.AddOption(new Option<int>(["--off", "-f"], () => 0));
+leCommand.AddOption(new Option<byte>(["--pattern", "-p"], () => 1));
+leCommand.Handler = CommandHandler.Create(async (string address, string color, int time, int on, int off, byte pattern) =>
 {
+    var rgb = Convert.ToInt32(color, 16);
+
     using var device = await MeshHelper.DiscoverDeviceAsync("MESH-100LE", address).ConfigureAwait(false);
     if (device is null)
     {
         Console.WriteLine("Device not found.");
+        return;
+    }
+
+    if (!await MeshHelper.PairAsync(device).ConfigureAwait(false))
+    {
+        Console.WriteLine("Pairing failed.");
         return;
     }
 
@@ -33,23 +47,33 @@ leCommand.Handler = CommandHandler.Create(async (string address) =>
 
     var command = new byte[]
     {
-        0x00, // Message Type
-        0x02, // Event Type LED
-        0x00, // R
+        0x01,
         0x00,
-        0xFF, // G
+        (byte)((rgb >> 16) & 0xff),
         0x00,
-        0x00, // B
-        0x88, 0x13, // 点灯時間
-        0x64, 0x00, // 点灯サイクル(100ms)
-        0x64, 0x00, // 消灯サイクル(100ms)
-        0x01, // 点灯パターン
+        (byte)((rgb >> 8) & 0xff),
+        0x00,
+        (byte)(rgb & 0xff),
+        0x00, 0x00,
+        0x00, 0x00,
+        0x00, 0x00,
+        pattern,
         0x00
     };
+    WriteTime(command.AsSpan(7), time);
+    WriteTime(command.AsSpan(9), on);
+    WriteTime(command.AsSpan(11), off);
     command[^1] = MeshHelper.CalcCrc(command.AsSpan(0, command.Length - 1));
     if (!await MeshHelper.WriteCommandAsync(characteristic, command).ConfigureAwait(false))
     {
         Console.WriteLine("Write command failed.");
+    }
+
+    return;
+
+    static void WriteTime(Span<byte> buffer, int value)
+    {
+        BinaryPrimitives.TryWriteUInt16LittleEndian(buffer, (ushort)(value is < 0 or > 65535 ? 65535 : value));
     }
 });
 rootCommand.Add(leCommand);

@@ -1,5 +1,7 @@
 namespace MeshTool;
 
+using System;
+
 using Windows.Devices.Bluetooth.Advertisement;
 using Windows.Devices.Bluetooth;
 using Windows.Devices.Bluetooth.GenericAttributeProfile;
@@ -13,8 +15,13 @@ public static class MeshHelper
 
     public static async ValueTask<BluetoothLEDevice?> DiscoverDeviceAsync(string name, string address)
     {
+        if (!String.IsNullOrEmpty(address))
+        {
+            var bluetoothAddress = Convert.ToUInt64(address, 16);
+            return await BluetoothLEDevice.FromBluetoothAddressAsync(bluetoothAddress);
+        }
+
         var tcs = new TaskCompletionSource<BluetoothLEDevice?>();
-        var bluetoothAddress = String.IsNullOrEmpty(address) ? 0 : Convert.ToUInt64(address, 16);
 
         // Watcher
         var watcher = new BluetoothLEAdvertisementWatcher
@@ -37,17 +44,18 @@ public static class MeshHelper
 
         async void ReceivedHandler(BluetoothLEAdvertisementWatcher source, BluetoothLEAdvertisementReceivedEventArgs eventArgs)
         {
-            if ((bluetoothAddress != 0) && (eventArgs.BluetoothAddress != bluetoothAddress))
-            {
-                return;
-            }
-
             var device = await BluetoothLEDevice.FromBluetoothAddressAsync(eventArgs.BluetoothAddress);
             if ((device is not null) && device.Name.Contains(name, StringComparison.OrdinalIgnoreCase))
             {
                 tcs.TrySetResult(device);
             }
         }
+    }
+
+    public static async ValueTask<bool> PairAsync(BluetoothLEDevice device)
+    {
+        var result = await device.DeviceInformation.Pairing.PairAsync();
+        return result.Status is DevicePairingResultStatus.Paired or DevicePairingResultStatus.AlreadyPaired;
     }
 
     public static async ValueTask<GattCharacteristic?> ResolveWriteCharacteristic(BluetoothLEDevice device)
