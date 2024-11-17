@@ -42,6 +42,7 @@ internal static class MeshHelper
 
         return target;
 
+        // ReSharper disable once AsyncVoidMethod
         async void ReceivedHandler(BluetoothLEAdvertisementWatcher source, BluetoothLEAdvertisementReceivedEventArgs eventArgs)
         {
             var device = await BluetoothLEDevice.FromBluetoothAddressAsync(eventArgs.BluetoothAddress);

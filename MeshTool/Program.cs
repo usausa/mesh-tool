@@ -15,7 +15,7 @@ leCommand.AddOption(new Option<int>(["--time", "-t"], () => -1));
 leCommand.AddOption(new Option<int>(["--on", "-n"], () => -1));
 leCommand.AddOption(new Option<int>(["--off", "-f"], () => 0));
 leCommand.AddOption(new Option<byte>(["--pattern", "-p"], () => 1));
-leCommand.Handler = CommandHandler.Create(async (string address, string color, int time, int on, int off, byte pattern) =>
+leCommand.Handler = CommandHandler.Create(static async (string address, string color, int time, int on, int off, byte pattern) =>
 {
     var rgb = Convert.ToInt32(color, 16);
 
