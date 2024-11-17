@@ -1,3 +1,4 @@
+#pragma warning disable IDE0320
 // ReSharper disable UseObjectOrCollectionInitializer
 
 using System.Buffers.Binary;
