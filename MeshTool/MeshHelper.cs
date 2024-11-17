@@ -8,7 +8,7 @@ using Windows.Devices.Bluetooth.GenericAttributeProfile;
 using Windows.Devices.Enumeration;
 using Windows.Storage.Streams;
 
-public static class MeshHelper
+internal static class MeshHelper
 {
     private static readonly Guid MeshService = new("72c90001-57a9-4d40-b746-534e22ec9f9e");
     private static readonly Guid WriteCharacteristic = new("72c90002-57a9-4d40-b746-534e22ec9f9e");
