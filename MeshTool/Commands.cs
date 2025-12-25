@@ -2,6 +2,7 @@
 // ReSharper disable ClassNeverInstantiated.Global
 // ReSharper disable MemberCanBeProtected.Global
 // ReSharper disable MemberCanBePrivate.Global
+// ReSharper disable UnusedAutoPropertyAccessor.Global
 namespace MeshTool;
 
 using System.Buffers.Binary;
@@ -27,16 +28,16 @@ public sealed class LedCommand : ICommandHandler
     public string Color { get; set; } = default!;
 
     [Option<int>("--time", "-t", Description = "Time", DefaultValue = -1)]
-    public int Time { get; set; } = default!;
+    public int Time { get; set; }
 
     [Option<int>("--on", "-n", Description = "ON", DefaultValue = -1)]
-    public int On { get; set; } = default!;
+    public int On { get; set; }
 
     [Option<int>("--off", "-f", Description = "OFF", DefaultValue = 0)]
-    public int Off { get; set; } = default!;
+    public int Off { get; set; }
 
     [Option<byte>("--pattern", "-p", Description = "Pattern", DefaultValue = 1)]
-    public byte Pattern { get; set; } = default!;
+    public byte Pattern { get; set; }
 
     public async ValueTask ExecuteAsync(CommandContext context)
     {
