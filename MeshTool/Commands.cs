@@ -17,10 +17,10 @@ public static class CommandBuilderExtensions
 }
 
 // LED
-[Command("led", Description = "LED")]
+[Command("led", "LED")]
 public sealed class LedCommand : ICommandHandler
 {
-    [Option<string>("--address", "-a", Description = "Address", IsRequired = true)]
+    [Option<string>("--address", "-a", Description = "Address", Required = true)]
     public string Address { get; set; } = default!;
 
     [Option<string>("--color", "-c", Description = "Address", DefaultValue = "FFFFFF")]
