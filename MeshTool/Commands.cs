@@ -3,6 +3,7 @@
 // ReSharper disable MemberCanBeProtected.Global
 // ReSharper disable MemberCanBePrivate.Global
 // ReSharper disable UnusedAutoPropertyAccessor.Global
+// ReSharper disable PreferConcreteValueOverDefault
 namespace MeshTool;
 
 using System.Buffers.Binary;
