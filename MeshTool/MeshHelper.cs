@@ -2,8 +2,8 @@ namespace MeshTool;
 
 using System;
 
-using Windows.Devices.Bluetooth.Advertisement;
 using Windows.Devices.Bluetooth;
+using Windows.Devices.Bluetooth.Advertisement;
 using Windows.Devices.Bluetooth.GenericAttributeProfile;
 using Windows.Devices.Enumeration;
 using Windows.Storage.Streams;
