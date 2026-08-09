@@ -13,6 +13,8 @@ internal static class MeshHelper
     private static readonly Guid MeshService = new("72c90001-57a9-4d40-b746-534e22ec9f9e");
     private static readonly Guid WriteCharacteristic = new("72c90002-57a9-4d40-b746-534e22ec9f9e");
 
+    private static readonly TimeSpan DiscoverTimeout = TimeSpan.FromSeconds(30);
+
     public static async ValueTask<BluetoothLEDevice?> DiscoverDeviceAsync(string name, string address)
     {
         if (!String.IsNullOrEmpty(address))
@@ -34,6 +36,11 @@ internal static class MeshHelper
         watcher.Start();
 
         // Discover
+        using var timeout = new CancellationTokenSource(DiscoverTimeout);
+        await using var registration = timeout.Token.Register(
+            static state => ((TaskCompletionSource<BluetoothLEDevice?>)state!).TrySetResult(null),
+            tcs);
+
         var target = await tcs.Task.ConfigureAwait(false);
 
         // Stop
@@ -46,9 +53,14 @@ internal static class MeshHelper
         async void ReceivedHandler(BluetoothLEAdvertisementWatcher source, BluetoothLEAdvertisementReceivedEventArgs eventArgs)
         {
             var device = await BluetoothLEDevice.FromBluetoothAddressAsync(eventArgs.BluetoothAddress);
-            if ((device is not null) && device.Name.Contains(name, StringComparison.OrdinalIgnoreCase))
+            if (device is null)
             {
-                tcs.TrySetResult(device);
+                return;
+            }
+
+            if (!device.Name.Contains(name, StringComparison.OrdinalIgnoreCase) || !tcs.TrySetResult(device))
+            {
+                device.Dispose();
             }
         }
     }
