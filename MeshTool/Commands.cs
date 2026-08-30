@@ -96,9 +96,7 @@ public sealed class LedCommand : ICommandHandler
 
         return;
 
-        static void WriteTime(Span<byte> buffer, int value)
-        {
+        static void WriteTime(Span<byte> buffer, int value) =>
             BinaryPrimitives.TryWriteUInt16LittleEndian(buffer, (ushort)(value is < 0 or > 65535 ? 65535 : value));
-        }
     }
 }
